@@ -31,6 +31,7 @@ class State(TypedDict):
     awaiting_input: bool
     last_message: str
     conversation_history: List[Dict[str, Any]]
+    auth_step: Optional[str]
 
 def initial_state() -> State:
     return {
@@ -62,5 +63,6 @@ def initial_state() -> State:
         "current_node": "",
         "awaiting_input": False,
         "last_message": "",
-        "conversation_history": []
+        "conversation_history": [],
+        "auth_step": None
     }
