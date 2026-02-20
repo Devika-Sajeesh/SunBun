@@ -32,6 +32,11 @@ class State(TypedDict):
     last_message: str
     conversation_history: List[Dict[str, Any]]
     auth_step: Optional[str]
+    service_step: Optional[str]
+    unknown_step: Optional[str]
+    system_info: Optional[Dict[str, Any]]
+    available_agent: Optional[Dict[str, Any]]
+    nps_feedback: Optional[str]
 
 def initial_state() -> State:
     return {
@@ -64,5 +69,10 @@ def initial_state() -> State:
         "awaiting_input": False,
         "last_message": "",
         "conversation_history": [],
-        "auth_step": None
+        "auth_step": None,
+        "service_step": None,
+        "unknown_step": None,
+        "system_info": None,
+        "available_agent": None,
+        "nps_feedback": None
     }
