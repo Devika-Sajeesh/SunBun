@@ -37,6 +37,8 @@ class State(TypedDict):
     system_info: Optional[Dict[str, Any]]
     available_agent: Optional[Dict[str, Any]]
     nps_feedback: Optional[str]
+    sales_step: Optional[str]
+    chosen_proposal: Optional[Dict[str, Any]]
 
 def initial_state() -> State:
     return {
@@ -74,5 +76,7 @@ def initial_state() -> State:
         "unknown_step": None,
         "system_info": None,
         "available_agent": None,
-        "nps_feedback": None
+        "nps_feedback": None,
+        "sales_step": None,
+        "chosen_proposal": None
     }
