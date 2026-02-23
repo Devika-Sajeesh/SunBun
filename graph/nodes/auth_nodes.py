@@ -22,17 +22,15 @@ def entry_node(state: State, user_input: Optional[str]) -> Dict[str, Any]:
     if normalized_input == "1" or "sales" in normalized_input:
         return {
             "support_type": "sales",
-            "last_message": "Great! Let's get you set up with Sales Support. 📊\n\nPlease choose how to verify your identity:\n  1 → Use Email\n  2 → Use Phone",
             "current_node": "auth_collect_contact",
-            "awaiting_input": True
+            "awaiting_input": False
         }
     
     elif normalized_input == "2" or "service" in normalized_input:
         return {
             "support_type": "service",
-            "last_message": "Got it! Let's connect you with Service Support. 🔧\n\nPlease choose how to verify your identity:\n  1 → Use Email\n  2 → Use Phone",
             "current_node": "auth_collect_contact",
-            "awaiting_input": True
+            "awaiting_input": False
         }
     
     else:
@@ -50,9 +48,11 @@ def auth_collect_contact(state: State, user_input: Optional[str]) -> Dict[str, A
     auth_step = state.get("auth_step")
     
     if auth_step is None:
+        support_type = state.get("support_type", "sales")
+        prefix = "Great! Let's get you set up with Sales Support. 📊" if support_type == "sales" else "Got it! Let's connect you with Service Support. 🔧"
         return {
             "auth_step": "choose_method",
-            "last_message": "Please choose how to verify your identity:\n  1 → Use Email\n  2 → Use Phone",
+            "last_message": f"{prefix}\n\nPlease choose how to verify your identity:\n  1 → Use Email\n  2 → Use Phone",
             "current_node": "auth_collect_contact",
             "awaiting_input": True
         }

@@ -68,7 +68,7 @@ def initial_state() -> State:
         "sales_profile": None,
         "proposals": [],
         "chosen_proposal_id": None,
-        "current_node": "",
+        "current_node": "entry_node",
         "awaiting_input": False,
         "last_message": "",
         "conversation_history": [],

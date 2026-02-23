@@ -43,6 +43,12 @@ class SunBunGraph:
         # Create graph
         workflow = StateGraph(State)
         
+        # Master Router Node (internal)
+        def master_router_node(state: State) -> Dict[str, Any]:
+            return {} # Pass through
+            
+        workflow.add_node("master_router", master_router_node)
+        
         # Add all nodes
         workflow.add_node("entry_node", self._wrap_node(entry_node))
         workflow.add_node("auth_collect_contact", self._wrap_node(auth_collect_contact))
@@ -70,36 +76,54 @@ class SunBunGraph:
         workflow.add_node("sales_proposal_confirm", self._wrap_node(sales_proposal_confirm))
         workflow.add_node("sales_handoff", self._wrap_node(sales_handoff))
         
-        # Set entry point
-        workflow.set_entry_point("entry_node")
+        # Set entry point to Master Router
+        workflow.set_entry_point("master_router")
         
         # Wire edges
         
+        # Master Router decides which node to START from based on state
+        workflow.add_conditional_edges(
+            "master_router",
+            lambda s: s.get("current_node", "entry_node"),
+            {
+                "entry_node": "entry_node",
+                "auth_collect_contact": "auth_collect_contact",
+                "auth_verify_otp": "auth_verify_otp",
+                "auth_not_found_handler": "auth_not_found_handler",
+                "auth_failed": "auth_failed",
+                "service_status_check": "service_status_check",
+                "service_resolution_router": "service_resolution_router",
+                "service_happy_close": "service_happy_close",
+                "service_nps_collect": "service_nps_collect",
+                "service_nps_feedback": "service_nps_feedback",
+                "service_issue_capture": "service_issue_capture",
+                "service_unknown_customer": "service_unknown_customer",
+                "sales_existing_router": "sales_existing_router",
+                "sales_proposal_choice": "sales_proposal_choice",
+                "sales_review_proposals": "sales_review_proposals",
+                "sales_info_capture": "sales_info_capture",
+                "sales_proposal_generate": "sales_proposal_generate",
+                "sales_proposal_select": "sales_proposal_select",
+                "sales_proposal_confirm": "sales_proposal_confirm",
+                "sales_handoff": "sales_handoff",
+                "end": END
+            }
+        )
+        
+        # Wire edges
+        
+        # Edge function to prevent infinite loops during wait states
+        def router(s: dict) -> str:
+            if s.get("awaiting_input"):
+                return END
+            return s.get("current_node", END)
+        
         # Auth flow
-        workflow.add_conditional_edges(
-            "entry_node",
-            lambda s: s["current_node"]
-        )
-        
-        workflow.add_conditional_edges(
-            "auth_collect_contact",
-            lambda s: s["current_node"]
-        )
-        
-        workflow.add_conditional_edges(
-            "auth_verify_otp",
-            lambda s: s["current_node"]
-        )
-        
-        workflow.add_conditional_edges(
-            "auth_not_found_handler",
-            lambda s: s["current_node"]
-        )
-        
-        workflow.add_conditional_edges(
-            "auth_failed",
-            lambda s: s["current_node"]
-        )
+        workflow.add_conditional_edges("entry_node", router)
+        workflow.add_conditional_edges("auth_collect_contact", router)
+        workflow.add_conditional_edges("auth_verify_otp", router)
+        workflow.add_conditional_edges("auth_not_found_handler", router)
+        workflow.add_conditional_edges("auth_failed", router)
         
         # Customer lookup router - branches to sales or service
         workflow.add_conditional_edges(
@@ -114,80 +138,39 @@ class SunBunGraph:
         )
         
         # Service flow
-        workflow.add_conditional_edges(
-            "service_status_check",
-            lambda s: s["current_node"]
-        )
-        
-        workflow.add_conditional_edges(
-            "service_resolution_router",
-            lambda s: s["current_node"]
-        )
-        
-        workflow.add_conditional_edges(
-            "service_happy_close",
-            lambda s: s["current_node"]
-        )
-        
-        workflow.add_conditional_edges(
-            "service_nps_collect",
-            lambda s: s["current_node"]
-        )
+        workflow.add_conditional_edges("service_status_check", router)
+        workflow.add_conditional_edges("service_resolution_router", router)
+        workflow.add_conditional_edges("service_happy_close", router)
+        workflow.add_conditional_edges("service_nps_collect", router)
         
         workflow.add_conditional_edges(
             "service_nps_feedback",
-            lambda s: s["current_node"] if s["current_node"] != "end" else END
+            lambda s: END if s.get("awaiting_input") or s.get("current_node") == "end" else s["current_node"]
         )
         
         workflow.add_conditional_edges(
             "service_issue_capture",
-            lambda s: s["current_node"] if s["current_node"] != "end" else END
+            lambda s: END if s.get("awaiting_input") or s.get("current_node") == "end" else s["current_node"]
         )
         
-        workflow.add_conditional_edges(
-            "service_unknown_customer",
-            lambda s: s["current_node"]
-        )
+        workflow.add_conditional_edges("service_unknown_customer", router)
         
         # Sales flow
-        workflow.add_conditional_edges(
-            "sales_existing_router",
-            lambda s: s["current_node"]
-        )
-        
-        workflow.add_conditional_edges(
-            "sales_proposal_choice",
-            lambda s: s["current_node"]
-        )
-        
-        workflow.add_conditional_edges(
-            "sales_review_proposals",
-            lambda s: s["current_node"]
-        )
-        
-        workflow.add_conditional_edges(
-            "sales_info_capture",
-            lambda s: s["current_node"]
-        )
-        
-        workflow.add_conditional_edges(
-            "sales_proposal_generate",
-            lambda s: s["current_node"]
-        )
-        
-        workflow.add_conditional_edges(
-            "sales_proposal_select",
-            lambda s: s["current_node"]
-        )
+        workflow.add_conditional_edges("sales_existing_router", router)
+        workflow.add_conditional_edges("sales_proposal_choice", router)
+        workflow.add_conditional_edges("sales_review_proposals", router)
+        workflow.add_conditional_edges("sales_info_capture", router)
+        workflow.add_conditional_edges("sales_proposal_generate", router)
+        workflow.add_conditional_edges("sales_proposal_select", router)
         
         workflow.add_conditional_edges(
             "sales_proposal_confirm",
-            lambda s: s["current_node"] if s["current_node"] != "end" else END
+            lambda s: END if s.get("awaiting_input") or s.get("current_node") == "end" else s["current_node"]
         )
         
         workflow.add_conditional_edges(
             "sales_handoff",
-            lambda s: s["current_node"] if s["current_node"] != "end" else END
+            lambda s: END if s.get("awaiting_input") or s.get("current_node") == "end" else s["current_node"]
         )
         
         return workflow.compile()
