@@ -1,4 +1,25 @@
 ticket_id,customer_id,site_id,issue_category,description,status,date_created
-401,2,102,"Communication Loss","My inverter is not reporting data to the app.","Open",2024-07-02
-402,5,105,"Production Issue","My system seems to be producing less than usual, even on sunny days.","In Progress",2024-07-03
-403,9,109,"System Not Working","The whole system is offline. The breaker might have tripped but I'm not sure.","Open",2024-07-05
+401,2,102,Communication Loss,My inverter is not reporting data to the app.,Open,2024-07-02
+402,5,105,Production Issue,"My system seems to be producing less than usual, even on sunny days.",In Progress,2024-07-03
+403,9,109,System Not Working,The whole system is offline. The breaker might have tripped but I'm not sure.,Open,2024-07-05
+404,1,101,Resolved Inquiry,Customer satisfied with automated response,Closed,2026-02-23
+405,2,102,Resolved Inquiry,Customer satisfied with automated response,Closed,2026-02-23
+406,1,101,Production Issue,My panels are producing very low power,Agent Assigned,2026-02-23
+407,1,101,Resolved Inquiry,Customer satisfied with automated response,Closed,2026-02-23
+408,2,102,Resolved Inquiry,Customer satisfied with automated response,Closed,2026-02-23
+409,1,101,Production Issue,My panels are producing very low power,Agent Assigned,2026-02-23
+410,1,101,Resolved Inquiry,Customer satisfied with automated response,Closed,2026-02-23
+411,2,102,Resolved Inquiry,Customer satisfied with automated response,Closed,2026-02-23
+412,1,101,Production Issue,My panels are producing very low power,Agent Assigned,2026-02-23
+413,1,101,Resolved Inquiry,Customer satisfied with automated response,Closed,2026-02-23
+414,2,102,Resolved Inquiry,Customer satisfied with automated response,Closed,2026-02-23
+415,1,101,Production Issue,My panels are producing very low power,Agent Assigned,2026-02-23
+416,1,101,Resolved Inquiry,Customer satisfied with automated response,Closed,2026-02-23
+417,2,102,Resolved Inquiry,Customer satisfied with automated response,Closed,2026-02-23
+418,1,101,Production Issue,My panels are producing very low power,Agent Assigned,2026-02-23
+419,1,101,Resolved Inquiry,Customer satisfied with automated response,Closed,2026-02-23
+420,2,102,Resolved Inquiry,Customer satisfied with automated response,Closed,2026-02-23
+421,1,101,Production Issue,My panels are producing very low power,Agent Assigned,2026-02-23
+422,1,101,Resolved Inquiry,Customer satisfied with automated response,Closed,2026-02-23
+423,2,102,Resolved Inquiry,Customer satisfied with automated response,Closed,2026-02-23
+424,1,101,Production Issue,My panels are producing very low power,Agent Assigned,2026-02-23

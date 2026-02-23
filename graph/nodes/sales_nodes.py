@@ -39,11 +39,11 @@ def format_generated_proposals(proposals: List[Dict[str, Any]]) -> str:
 
 def sales_existing_router(state: State, user_input: Optional[str]) -> Dict[str, Any]:
     """
-    Checks if the customer has existing proposals and routes accordingly.
+    Decides between reviewing existing proposals or starting a new prospect flow.
+    Used for customers who ARE is_in_db and have proposals.
     """
     data_service = get_instance()
-    
-    if state.get("in_db") and state.get("has_proposals"):
+    if state.get("is_in_db") and state.get("has_proposals"):
         proposals = data_service.get_proposals(state["customer_id"])
         
         return {
@@ -156,6 +156,16 @@ def sales_info_capture(state: State, user_input: Optional[str]) -> Dict[str, Any
     """
     step = state.get("sales_step")
     profile = state.get("sales_profile") or {}
+    
+    # Initialize: if no step set, start from beginning
+    if step is None:
+        return {
+            "sales_step": "segment",
+            "sales_profile": profile,
+            "last_message": "First, are you a:\n  1 → Residential customer\n  2 → Commercial customer\n  3 → Industrial customer",
+            "current_node": "sales_info_capture",
+            "awaiting_input": True
+        }
     
     if step == "segment":
         segments = {"1": "Residential", "2": "Commercial", "3": "Industrial"}
@@ -272,20 +282,22 @@ def sales_proposal_confirm(state: State, user_input: Optional[str]) -> Dict[str,
     data_service = get_instance()
     agent = data_service.check_agent_availability("sales_executive")
     
+    # Always create the CRM opportunity at this point
+    opp_id = data_service.create_crm_opportunity({
+        "prospect_id": state.get("customer_id", 0),
+        "chosen_proposal_id": state.get("chosen_proposal_id"),
+        "status": "New"
+    })
+    
     if agent:
         return {
             "available_agent": agent,
+            "opportunity_id": opp_id,
             "last_message": f"👤 A sales representative is available!\n\nAgent: {agent['agent_name']}\n\nHow would you prefer to connect?\n  1 → 💬 Chat now\n  2 → 📞 Schedule a call",
             "current_node": "sales_handoff",
             "awaiting_input": True
         }
     else:
-        # Create Opportunity
-        opp_id = data_service.create_crm_opportunity({
-            "prospect_id": state.get("customer_id", 0),
-            "chosen_proposal_id": state.get("chosen_proposal_id"),
-            "status": "New"
-        })
         return {
             "opportunity_id": opp_id,
             "last_message": f"📋 Our sales team is unavailable right now, but we've logged your interest.\n\nOpportunity ID: {opp_id}\n\nYou'll receive a call or email from our team within 24 hours.\n\nThank you for choosing SunBun! ☀️",
@@ -343,7 +355,7 @@ def sales_handoff(state: State, user_input: Optional[str]) -> Dict[str, Any]:
 
 def route_sales_entry(state: State) -> str:
     """Route after customer lookup for sales support"""
-    if state.get("in_db") and state.get("has_proposals"):
+    if state.get("is_in_db") and state.get("has_proposals"):
         return "sales_existing_router"
     else:
         return "sales_info_capture"

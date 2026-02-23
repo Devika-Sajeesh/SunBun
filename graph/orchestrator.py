@@ -34,6 +34,9 @@ class SunBunGraph:
     """LangGraph orchestrator for SunBun assistant"""
     
     def __init__(self):
+        import sys, graph
+        print(f"DEBUG INIT: sys.path={sys.path}")
+        print(f"DEBUG INIT: graph package path={graph.__file__}")
         self.graph = self._build_graph()
         self.sessions = {}  # session_id -> state dict
     
@@ -187,23 +190,27 @@ class SunBunGraph:
             # Clear user input after processing
             updates["_user_input"] = None
             
+            # DEBUG: Trace update
+            print(f"DEBUG WRAPPER: Node {node_func.__name__} returned {list(updates.keys())}")
+            
             return updates
         
         return wrapped
     
     def _customer_lookup_router(self, state: dict) -> dict:
         """Router node after authentication - decides sales vs service"""
+        print(f"DEBUG ROUTER: is_in_db={state.get('is_in_db')}, support_type={state.get('support_type')}")
         support_type = state.get("support_type")
-        in_db = state.get("in_db", False)
+        is_in_db = state.get("is_in_db", False)
         
         # Determine next node
         if support_type == "service":
-            if in_db:
+            if is_in_db:
                 next_node = "service_status_check"
             else:
                 next_node = "service_unknown_customer"
         else:  # sales
-            if in_db and state.get("has_proposals"):
+            if is_in_db and state.get("has_proposals"):
                 next_node = "sales_existing_router"
             else:
                 next_node = "sales_info_capture"
@@ -245,17 +252,24 @@ class SunBunGraph:
         current_node = state.get("current_node", "entry_node")
         
         try:
-            # Invoke the graph from current node
+            # Restart logic
             if current_node == "end":
-                # Conversation ended, restart
                 state = initial_state()
                 state["session_id"] = session_id
-                self.sessions[session_id] = state
                 state["_user_input"] = user_input
                 current_node = "entry_node"
             
-            # Run one step of the graph
-            result = self.graph.invoke(state, {"recursion_limit": 50})
+            # Run the graph and stream steps
+            final_result = state
+            
+            for output in self.graph.stream(state, {"recursion_limit": 50}):
+                for node_name, node_output in output.items():
+                    # Merge updates into result
+                    if node_output is not None:
+                        for k, v in node_output.items():
+                            final_result[k] = v
+
+            result = final_result
             
             # Update session state
             self.sessions[session_id] = result

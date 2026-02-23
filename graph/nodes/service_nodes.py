@@ -324,7 +324,7 @@ def service_unknown_customer(state: State, user_input: Optional[str]) -> Dict[st
     Collects system info for users not in the database.
     """
     step = state.get("unknown_step")
-    system_info = state.get("system_info", {})
+    system_info = state.get("system_info") or {}
     
     if step is None or step == "system_size": # Entry or Step 1
         if not step:
@@ -385,7 +385,7 @@ def service_unknown_customer(state: State, user_input: Optional[str]) -> Dict[st
 
 def route_service_entry(state: State) -> str:
     """Route after customer lookup for service support"""
-    if state.get("in_db"):
+    if state.get("is_in_db"):
         return "service_status_check"
     else:
         return "service_unknown_customer"

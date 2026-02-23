@@ -1,5 +1,4 @@
-from typing import List, Literal, Optional, Dict, Any, Union
-from typing_extensions import TypedDict
+from typing import List, Literal, Optional, Dict, Any, Union, TypedDict
 
 class State(TypedDict):
     session_id: str
@@ -10,10 +9,10 @@ class State(TypedDict):
     otp_code: Optional[str]
     contact: Dict[str, Any]  # keys: "email", "phone"
     customer_id: Optional[str]
-    in_db: Optional[bool]
-    customer_name: Optional[str]
-    location: Optional[str]
-    site_id: Optional[str]
+    is_in_db: bool
+    customer_name: str
+    location: str
+    site_id: str
     has_proposals: bool
     issue_flag: Optional[bool]
     issue_text: Optional[str]
@@ -39,6 +38,7 @@ class State(TypedDict):
     nps_feedback: Optional[str]
     sales_step: Optional[str]
     chosen_proposal: Optional[Dict[str, Any]]
+    opportunity_id: Optional[str]
     _user_input: Optional[str]
 
 def initial_state() -> State:
@@ -51,10 +51,10 @@ def initial_state() -> State:
         "otp_code": None,
         "contact": {"email": None, "phone": None},
         "customer_id": None,
-        "in_db": None,
-        "customer_name": None,
-        "location": None,
-        "site_id": None,
+        "is_in_db": False,
+        "customer_name": "",
+        "location": "",
+        "site_id": "",
         "has_proposals": False,
         "issue_flag": None,
         "issue_text": None,
@@ -80,5 +80,6 @@ def initial_state() -> State:
         "nps_feedback": None,
         "sales_step": None,
         "chosen_proposal": None,
+        "opportunity_id": None,
         "_user_input": None
     }

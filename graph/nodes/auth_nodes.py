@@ -47,19 +47,21 @@ def auth_collect_contact(state: State, user_input: Optional[str]) -> Dict[str, A
     """
     auth_step = state.get("auth_step")
     
-    if auth_step is None:
-        support_type = state.get("support_type", "sales")
-        prefix = "Great! Let's get you set up with Sales Support. 📊" if support_type == "sales" else "Got it! Let's connect you with Service Support. 🔧"
-        return {
-            "auth_step": "choose_method",
-            "last_message": f"{prefix}\n\nPlease choose how to verify your identity:\n  1 → Use Email\n  2 → Use Phone",
-            "current_node": "auth_collect_contact",
-            "awaiting_input": True
-        }
-
-    normalized_input = user_input.lower().strip() if user_input else ""
-
-    if auth_step == "choose_method":
+    # STEP 1: Choose method (email or phone)
+    if auth_step is None or auth_step == "choose_method":
+        if user_input is None:
+            # First time or after reset - show options
+            support_type = state.get("support_type", "sales")
+            prefix = "Great! Let's get you set up with Sales Support. 📊" if support_type == "sales" else "Got it! Let's connect you with Service Support. 🔧"
+            return {
+                "auth_step": "choose_method",
+                "last_message": f"{prefix}\n\nPlease choose how to verify your identity:\n  1 → Use Email\n  2 → Use Phone",
+                "current_node": "auth_collect_contact",
+                "awaiting_input": True
+            }
+        
+        # User selected method
+        normalized_input = user_input.lower().strip() if user_input else ""
         if normalized_input == "1" or "email" in normalized_input:
             return {
                 "contact": {"email": None, "phone": None, "method": "email"},
@@ -68,7 +70,6 @@ def auth_collect_contact(state: State, user_input: Optional[str]) -> Dict[str, A
                 "current_node": "auth_collect_contact",
                 "awaiting_input": True
             }
-        
         elif normalized_input == "2" or "phone" in normalized_input:
             return {
                 "contact": {"email": None, "phone": None, "method": "phone"},
@@ -77,20 +78,16 @@ def auth_collect_contact(state: State, user_input: Optional[str]) -> Dict[str, A
                 "current_node": "auth_collect_contact",
                 "awaiting_input": True
             }
-        
         else:
-             # Handle invalid input for method choice by repeating prompt (implied by typical flow, though not explicitly spec'd fallback)
-             # User spec: "If user_input == '1'... If '2'..."
-             # Fallback is not explicitly defined in Node 2 spec, but standard practice is to re-prompt.
-             # However, adhere strictly to logic: if it doesn't match 1 or 2, we might return None or error? 
-             # I will add a safe fallback to re-ask.
-             return {
+            # Invalid choice
+            return {
                 "last_message": "Invalid choice. Please reply:\n  1 → Use Email\n  2 → Use Phone",
                 "current_node": "auth_collect_contact",
                 "awaiting_input": True
-             }
+            }
 
-    if auth_step == "enter_identifier":
+    # STEP 2: Enter identifier
+    elif auth_step == "enter_identifier":
         method = state.get("contact", {}).get("method")
         data_service = get_instance()
         
@@ -136,9 +133,10 @@ def auth_verify_otp(state: State, user_input: Optional[str]) -> Dict[str, Any]:
         customer = data_service.lookup_customer(identifier)
         
         if customer:
+            print(f"DEBUG AUTH: Found customer {customer['name']}, setting is_in_db=True")
             return {
                 "auth_verified": True,
-                "in_db": True,
+                "is_in_db": True,
                 "customer_id": int(customer["customer_id"]),
                 "customer_name": customer["name"],
                 "location": customer["location"],
@@ -151,7 +149,7 @@ def auth_verify_otp(state: State, user_input: Optional[str]) -> Dict[str, Any]:
         else:
             return {
                 "auth_verified": True,
-                "in_db": False,
+                "is_in_db": False,
                 "last_message": f"✅ Identity verified!\n\nWe couldn't find an existing SunBun system under {identifier}.\n\nWould you like to:\n  1 → Try a different email/phone\n  2 → Continue anyway",
                 "current_node": "auth_not_found_handler",
                 "awaiting_input": True
@@ -192,7 +190,7 @@ def auth_not_found_handler(state: State, user_input: Optional[str]) -> Dict[str,
     
     elif normalized_input == "2":
         return {
-            "in_db": False,
+            "is_in_db": False,
             "last_message": "Got it! We'll help you anyway.",
             "current_node": "customer_lookup_result",
             "awaiting_input": False
