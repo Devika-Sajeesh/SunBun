@@ -23,3 +23,7 @@ ticket_id,customer_id,site_id,issue_category,description,status,date_created
 422,1,101,Resolved Inquiry,Customer satisfied with automated response,Closed,2026-02-23
 423,2,102,Resolved Inquiry,Customer satisfied with automated response,Closed,2026-02-23
 424,1,101,Production Issue,My panels are producing very low power,Agent Assigned,2026-02-23
+425,1,101,Resolved Inquiry,Customer satisfied with automated response,Closed,2026-02-23
+426,2,102,Resolved Inquiry,Customer satisfied with automated response,Closed,2026-02-23
+427,1,101,Production Issue,My panels are producing very low power,Agent Assigned,2026-02-23
+428,1,101,Inverter Failure,my inverter keeps getting shut down,Open,2026-02-23
