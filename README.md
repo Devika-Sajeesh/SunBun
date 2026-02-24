@@ -4,7 +4,6 @@
 
 **Submission by**: Devika Sajeesh
 **Date**: February 24, 2026 
-**Repository**: [GitHub Link]
 
 ---
 
@@ -18,9 +17,6 @@
 - [Running the Application](#running-the-application)
 - [Testing](#testing)
 - [Project Structure](#project-structure)
-- [Design Decisions](#design-decisions)
-- [Known Limitations](#known-limitations)
-- [Week 2 Preview](#week-2-preview)
 - [Demo Video](#demo-video)
 
 ---
@@ -445,60 +441,6 @@ sunbun-agent/
 
 ---
 
-## Known Limitations
-
-### Week 1 Scope Limitations
-
-1. **OTP Simulation** – OTPs are printed to console, not sent via real email/SMS
-2. **In-Memory Sessions** – State lost on server restart
-3. **No Real Agent Handoff** – Simulates connection to human agents
-4. **CSV Concurrency** – No file locking for concurrent writes
-5. **Basic Error Messages** – Could be more user-friendly in edge cases
-
-### Intentional Simplifications
-
-- No authentication/authorization for API endpoints
-- No rate limiting on OTP generation
-- No persistent conversation history
-- Agent availability is static CSV flag (not real-time)
-
-**These will be addressed in Week 2** with:
-- MongoDB persistence
-- Agent Protocol implementation
-- Real-time agent availability checks
-- LLM-enhanced response formatting
-
----
-
-## Week 2 Preview
-
-Planned enhancements for top-6 shortlist:
-
-### Agent Protocol Compliance
-
-- Expose graph as `/ap/v1/agent/tasks` and `/steps` endpoints
-- State persistence tied to `customer_id` and `site_id`
-- Task-based execution model
-
-### Enhanced Intelligence
-
-- LLM-assisted natural language understanding (keeping deterministic routing)
-- Contextual response generation
-- Sentiment analysis for escalation priority
-
-### Human-in-Loop
-
-- Sales assistant mode: agent can regenerate proposals, get top-5 options, add feedback
-- Service triage: agent sees full context before handoff
-
-### MERN Frontend
-
-- React-based web UI calling Agent Protocol API
-- Real-time conversation visualization
-- Session state inspector
-
----
-
 ## Demo Video
 
 **Video Walkthrough**: [Watch on Loom](https://www.loom.com/share/5e108b3b1a384f6f867838142d670169)
@@ -508,18 +450,6 @@ Demonstrates:
 2. Service flow with active issue (escalation path)
 3. Test suite execution (all 13 tests passing)
 4. Graph visualization
-
----
-
-## Evaluation Criteria Checklist
-
-| Criteria | Weight | Status | Evidence |
-|----------|--------|--------|----------|
-| **Correctness** | 30% | Done | All 7 spec flows implemented, 13/13 tests passing |
-| **Deterministic Design** | 25% | Done | Zero LLM calls, pure Python branching, graph visualization |
-| **Backend Quality** | 25% | Done | Clean FastAPI + LangGraph separation, session state, error handling |
-| **UX & Clarity** | 10% | Done | Structured messages, always tells user what's next |
-| **Documentation** | 10% | Done | Comprehensive README, design decisions, video walkthrough |
 
 ---
 
