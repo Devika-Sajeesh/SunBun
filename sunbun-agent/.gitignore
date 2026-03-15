@@ -1,0 +1,7 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+!data/*.csv  # Keep data in repo for Week 2 demo
+pgdata/

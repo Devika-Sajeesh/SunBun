@@ -1,0 +1,29 @@
+# Docker configuration for SunBun Solar Assistant
+# Sets up PostgreSQL for state persistence and Aegra API for the backend
+
+services:
+  postgres:
+    # Use standard Postgres 16 image
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      # Map container 5432 to host 5433 to avoid local conflicts
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  aegra-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    depends_on:
+      - postgres
+    command: aegra dev
+
+volumes:
+  pgdata:
