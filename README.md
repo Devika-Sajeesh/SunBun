@@ -4,8 +4,6 @@
 
 **Submission by**: Devika Sajeesh  
 **Date**: March 15, 2026  
-**Repository**: [GitHub Link]
-
 ---
 
 ## Table of Contents
